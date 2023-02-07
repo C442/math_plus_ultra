@@ -1,12 +1,16 @@
 # the ultimate math game with feedback
 from random import randint
 import time
-from regex import W
+from gpio_lcd import GpioLcd
+from machine import Pin
 
-from scipy import rand
-
-
-# idea of a class is there, it must be made, since it is the only way to make it good
+lcd = GpioLcd(rs_pin=Pin(16),
+              enable_pin=Pin(17),
+              d4_pin=Pin(18),
+              d5_pin=Pin(19),
+              d6_pin=Pin(20),
+              d7_pin=Pin(21),
+              num_lines=2, num_columns=16)
 
 
 def main():
@@ -22,17 +26,18 @@ def main():
         points = check_if_remember(numbers, points)
         f.write(
             f"|level= {current_level.level} points= {points} time= {time_total}")
-        break
     f.close()
 
 
 def remember_number(level):
     numbers = []
-    print("try to remember: ")
+    lcd.putstr("try to remember: ")
     for i in range((level+1) % 5+1+int(level//5)):
         x = randint(1, 100)
         numbers.append(x)
-        print(f"{x}")
+    lcd.putstr(str(numbers))
+    time.sleep(3)
+    lcd.clear()
     return numbers
 
 
@@ -60,7 +65,7 @@ def exercise_calculating(level, points, parameters):
 
 
 def check_if_remember(numbers, points):
-    remember = input(numbers)
+    remember = input("\n"+str(numbers))
     if remember == "yes":
         pass
     else:
@@ -131,11 +136,9 @@ class current_level:
         number_length_digit = 10
         solved = 0
         question = ""
-        print(add_sub_parameters[1])
         length_of_digits, number_of_terms = add_sub_parameters[1]
         # getting transformation of paramters
         x = randint(1, length_of_digits)
-        print("x = " + str(x))
         if x != 1:
             for i in range(x):
                 if i == 0:
@@ -162,10 +165,11 @@ class current_level:
             else:
                 question += f"{sign} {element} "
 
-        answer = input(question)
-        # part where you can add the poits system with micropython
-        time.sleep(1)
-        print(solved)
+        lcd.putstr(question)
+        time.sleep(3)        
+        lcd.putstr(str(solved))
+        lcd.clear()
+
         return points
 
 
